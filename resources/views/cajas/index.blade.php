@@ -80,17 +80,17 @@
                 </td>
 
                 <td>
-
                     <a class="btn btn-warning" href="{{ route('cajas.edit', $caja->id) }}">Editar</a>
 
-                    <form action="{{ route('cajas.destroy', $caja->id) }}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este website?');" method="POST">
+                    <a class="btn btn-info" href="{{ route('admin.paquetes.cajas.edit', $caja->id) }}">Paquetes</a>
+                    <form action="{{ route('cajas.destroy', $caja->id) }}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta caja?');" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">Eliminar</button>
                     </form>
-
-
                 </td>
+
+
             </tr>
             @endforeach
         </tbody>

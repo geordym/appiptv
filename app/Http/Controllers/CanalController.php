@@ -96,9 +96,29 @@ class CanalController extends Controller
 
     public function edit($id)
     {
-        $canal = Canal::find($id);
-        return view('canales.edit')->with('canal', $canal);
+        try {
+            // Validar que el ID sea un número entero
+            if (!is_numeric($id)) {
+                return redirect()->route('admin.canales')->with('error', 'ID inválido.');
+            }
+
+            // Buscar el canal por ID
+            $canal = Canal::find($id);
+
+            // Validar si el canal existe
+            if (!$canal) {
+                return redirect()->route('admin.canales')->with('error', 'Canal no encontrado.');
+            }
+
+            // Retornar la vista de edición con el canal
+            return view('canales.edit')->with('canal', $canal);
+
+        } catch (\Exception $e) {
+            // Manejo de cualquier otra excepción
+            return redirect()->route('admin.canales')->with('error', 'Ocurrió un error al buscar el canal: ' . $e->getMessage());
+        }
     }
+
 
     public function update(Request $request, $id)
     {
@@ -169,6 +189,52 @@ class CanalController extends Controller
     return redirect()->route('admin.canales')->with('success', 'El archivo de canales se ha actualizado exitosamente.');
 }
 
+public function generarXMLByCajaId($caja_id)
+{
+    $caja = Caja::with(['paquetes', 'paquetes.canales'])->where('id', $caja_id)->first();
+    dd($caja);
+    $caja_canales = [];
+    $paquetes = $caja->paquetes;
+
+    foreach($paquetes as $paquete){
+        $canales = $paquete->canales;
+        foreach($canales as $canal){
+            $caja_canales[] = $canal;
+        }
+    }
+
+    dd($caja_canales);
+
+    $canales_habilitados = Canal::where('habilitado', 1)->get();
+
+    // Crear un nuevo objeto SimpleXMLElement con una raíz llamada "list"
+    $xml = new \SimpleXMLElement('<?xml version="1.0"?><list></list>');
+
+    foreach ($canales_habilitados as $canal) {
+        $item1 = $xml->addChild('item');
+        $item1->addChild('key', htmlspecialchars($canal->key, ENT_XML1, 'UTF-8'));
+        $item1->addChild('value', htmlspecialchars($canal->value, ENT_XML1, 'UTF-8'));
+        $item1->addChild('type', htmlspecialchars($canal->type, ENT_XML1, 'UTF-8'));
+
+        if ($canal->number != 0) {
+            $item1->addChild('number', $canal->number);
+        }
+    }
+
+    $xmlString = $xml->asXML();
+
+    try {
+        $archivo_canales = fopen($this->xml_ruta, "w");
+        fwrite($archivo_canales, $xmlString);
+        fclose($archivo_canales);
+    } catch (Exception $e) {
+        echo 'Exception: ' . $e;
+    }
+
+    // Devolver una respuesta HTTP con el contenido XML
+    return redirect()->route('admin.canales')->with('success', 'El archivo de canales se ha actualizado exitosamente.');
+}
+
 
     function retornarXML(Request $request)
     {
@@ -179,6 +245,8 @@ class CanalController extends Controller
         $caja_registro->save();
 
         $caja = Caja::where('mac', $mac)->first();
+
+        $this->generarXMLByCajaId(6);
 
         if (!$caja) {
             return response()->file($this->xml_empty_ruta);

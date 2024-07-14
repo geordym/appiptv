@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/canales/xml', [App\Http\Controllers\CanalController::class, 'generarXML']);
 
+Route::get('/test', [App\Http\Controllers\TestController::class, 'test']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

@@ -313,7 +313,10 @@ return [
             'text' => 'Cajas',
             'url'  => '/admin/cajas',
         ],
-
+        [
+            'text' => 'Paquetes',
+            'url'  => '/admin/paquetes',
+        ],
         [
             'text' => 'Acceso',
             'url'  => '/change-password',

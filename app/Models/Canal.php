@@ -18,5 +18,10 @@ class Canal extends Model
         'number'
     ];
 
+    public function paquetes()
+    {
+        return $this->belongsToMany(Paquete::class, 'paquetes_canales', 'canal_id', 'paquete_id');
+    }
+
 
 }

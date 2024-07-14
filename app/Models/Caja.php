@@ -12,4 +12,9 @@ class Caja extends Model
     protected $table = "cajas";
 
 
+    public function paquetes()
+    {
+        return $this->belongsToMany(Paquete::class, 'paquetes_cajas', 'caja_id', 'paquete_id');
+    }
+
 }

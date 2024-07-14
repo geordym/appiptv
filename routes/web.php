@@ -51,6 +51,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/cajas/log', [App\Http\Controllers\CajaController::class, 'registroCajas'])->name('cajas.log');
     Route::resource('/admin/cajas', CajaController::class);
 
+    /*PAQUETES ROUTES */
+    Route::get('/admin/paquetes', [App\Http\Controllers\PaqueteController::class, 'index'])->name('admin.paquetes.index');
+    Route::get('/admin/paquetes/create', [App\Http\Controllers\PaqueteController::class, 'create'])->name('admin.paquetes.create');
+    Route::post('/admin/paquetes/create', [App\Http\Controllers\PaqueteController::class, 'store'])->name('admin.paquetes.store');
+    Route::get('/admin/paquetes/edit/{id}', [App\Http\Controllers\PaqueteController::class, 'edit'])->name('admin.paquetes.edit');
+    Route::delete('/admin/paquetes/delete/{id}', [App\Http\Controllers\PaqueteController::class, 'destroy'])->name('admin.paquetes.delete');
+    Route::put('/admin/paquetes/{id}', [App\Http\Controllers\PaqueteController::class, 'update'])->name('admin.paquetes.update');
+    Route::post('/admin/paquetes/canales/add/{id}', [App\Http\Controllers\PaqueteController::class, 'canalAdd'])->name('admin.paquetes.canalAdd');
+    Route::delete('/admin/paquetes/canales/destroy/{id}', [App\Http\Controllers\PaqueteController::class, 'canalRemove'])->name('admin.paquetes.canales.destroy');
+    Route::get('/admin/paquetes/cajas/{id}', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteEdit'])->name('admin.paquetes.cajas.edit');
+    Route::post('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteAttach'])->name('admin.paquetes.cajas.attach');
+    Route::delete('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteDettach'])->name('admin.paquetes.cajas.dettach');
+
+
     /*CHANGE PASSWORD ROUTES */
     Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'changePassword']);
