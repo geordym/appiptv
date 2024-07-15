@@ -42,6 +42,39 @@ class PaqueteController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            // Validar que el ID del paquete sea numérico y mayor que cero
+            if (!is_numeric($id) || $id <= 0) {
+                throw new \InvalidArgumentException('El ID del paquete no es válido.');
+            }
+
+            // Encontrar el paquete por su ID
+            $paquete = Paquete::findOrFail($id);
+
+            // Eliminar todos los registros en paquetes_canales asociados a este paquete
+            $paquete->canales()->detach();
+
+            // Eliminar el paquete
+            $paquete->delete();
+
+            // Redireccionar con un mensaje de éxito
+            return redirect()->route('admin.paquetes.index')->with('success', 'Paquete eliminado correctamente.');
+        } catch (\InvalidArgumentException $e) {
+            // Manejar errores de validación del ID del paquete
+            return redirect()->route('admin.paquetes.index')->with('error', $e->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Manejar errores cuando no se encuentra el paquete
+            return redirect()->route('admin.paquetes.index')->with('error', 'El paquete especificado no existe.');
+        } catch (\Exception $e) {
+            // Manejar cualquier otro tipo de error
+            return redirect()->route('admin.paquetes.index')->with('error', 'Ocurrió un error al eliminar el paquete. Por favor, inténtelo de nuevo.');
+        }
+    }
+
+
+
 
     public function edit($id)
     {

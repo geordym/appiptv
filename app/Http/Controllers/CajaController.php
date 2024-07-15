@@ -101,8 +101,32 @@ class CajaController extends Controller
      */
     public function edit($id)
     {
-        $caja = Caja::find($id);
-        return view('cajas.edit')->with('caja', $caja);
+        try {
+            // Validar que el ID de la caja sea numérico y mayor que cero
+            if (!is_numeric($id) || $id <= 0) {
+                throw new \InvalidArgumentException('El ID de la caja no es válido.');
+            }
+
+            // Obtener la caja por su ID
+            $caja = Caja::find($id);
+
+            // Verificar si la caja fue encontrada
+            if (!$caja) {
+                throw new \Illuminate\Database\Eloquent\ModelNotFoundException('No se encontró la caja especificada.');
+            }
+
+            // Devolver la vista con la caja encontrada
+            return view('cajas.edit')->with('caja', $caja);
+        } catch (\InvalidArgumentException $e) {
+            // Manejar errores de validación del ID de la caja
+            return redirect()->route('admin.cajas.index')->with('error', $e->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Manejar errores cuando no se encuentra la caja
+            return redirect()->route('admin.cajas.index')->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            // Manejar cualquier otro tipo de error
+            return redirect()->route('admin.cajas.index')->with('error', 'Ocurrió un error al cargar la edición de la caja. Por favor, inténtelo de nuevo.');
+        }
     }
 
     /**
@@ -151,13 +175,30 @@ class CajaController extends Controller
      */
     public function destroy($id)
     {
-        // Encontrar la caja a eliminar
-        $caja = Caja::findOrFail($id);
+        try {
+            // Validar que el ID de la caja sea numérico y mayor que cero
+            if (!is_numeric($id) || $id <= 0) {
+                throw new \InvalidArgumentException('El ID de la caja no es válido.');
+            }
 
-        // Eliminar la caja
-        $caja->delete();
+            // Obtener la caja por su ID
+            $caja = Caja::findOrFail($id);
 
-        // Redireccionar con un mensaje
-        return redirect()->route('cajas.index')->with('success', 'Caja eliminada correctamente.');
+            // Eliminar la caja
+            $caja->delete();
+
+            // Redireccionar con un mensaje de éxito
+            return redirect()->route('cajas.index')->with('success', 'Caja eliminada correctamente.');
+        } catch (\InvalidArgumentException $e) {
+            // Manejar errores de validación del ID de la caja
+            return redirect()->route('cajas.index')->with('error', $e->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Manejar errores cuando no se encuentra la caja
+            return redirect()->route('cajas.index')->with('error', 'La caja especificada no existe.');
+        } catch (\Exception $e) {
+            // Manejar cualquier otro tipo de error
+            return redirect()->route('cajas.index')->with('error', 'Ocurrió un error al eliminar la caja. Por favor, inténtelo de nuevo.');
+        }
     }
+
 }

@@ -257,9 +257,7 @@ public function generarXMLByCajaId($caja_id)
 
         $caja = Caja::where('mac', $mac)->first();
 
-        $xmlString = $this->generarXMLByCajaId(5);
-        return response($xmlString, 200)
-        ->header('Content-Type', 'text/xml');
+
 
         if (!$caja) {
             return response()->file($this->xml_empty_ruta);
@@ -268,7 +266,9 @@ public function generarXMLByCajaId($caja_id)
         $estado = $caja->estado;
 
         if ($estado === "activado") {
-            return response()->file($this->xml_ruta);
+            $xmlString = $this->generarXMLByCajaId($caja->id);
+            return response($xmlString, 200)
+            ->header('Content-Type', 'text/xml');
         } else {
             return response()->file($this->xml_empty_ruta);
         }
