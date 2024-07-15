@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Canal;
 use Exception;
-
+use Illuminate\Support\Facades\Response;
 class CanalController extends Controller
 {
     //
@@ -189,13 +189,32 @@ class CanalController extends Controller
     return redirect()->route('admin.canales')->with('success', 'El archivo de canales se ha actualizado exitosamente.');
 }
 
+function removeDuplicateChannels($channels) {
+    $uniqueChannels = [];
+    $seenIds = [];
+
+    foreach ($channels as $channel) {
+        if (!in_array($channel->id, $seenIds)) {
+            $uniqueChannels[] = $channel;
+            $seenIds[] = $channel->id;
+        }
+    }
+
+    return $uniqueChannels;
+}
+
+function filterChannelsByEnabled($channels) {
+    return array_filter($channels, function($channel) {
+        return $channel->habilitado == 1;
+    });
+}
+
 public function generarXMLByCajaId($caja_id)
 {
     $caja = Caja::with(['paquetes', 'paquetes.canales'])->where('id', $caja_id)->first();
-    dd($caja);
-    $caja_canales = [];
     $paquetes = $caja->paquetes;
 
+    $caja_canales = [];
     foreach($paquetes as $paquete){
         $canales = $paquete->canales;
         foreach($canales as $canal){
@@ -203,14 +222,15 @@ public function generarXMLByCajaId($caja_id)
         }
     }
 
-    dd($caja_canales);
 
-    $canales_habilitados = Canal::where('habilitado', 1)->get();
+    $caja_canales = $this->removeDuplicateChannels($caja_canales);
+    $caja_canales = $this->filterChannelsByEnabled($caja_canales);
 
+   // dd($caja_canales);
     // Crear un nuevo objeto SimpleXMLElement con una raíz llamada "list"
     $xml = new \SimpleXMLElement('<?xml version="1.0"?><list></list>');
 
-    foreach ($canales_habilitados as $canal) {
+    foreach ($caja_canales as $canal) {
         $item1 = $xml->addChild('item');
         $item1->addChild('key', htmlspecialchars($canal->key, ENT_XML1, 'UTF-8'));
         $item1->addChild('value', htmlspecialchars($canal->value, ENT_XML1, 'UTF-8'));
@@ -223,16 +243,7 @@ public function generarXMLByCajaId($caja_id)
 
     $xmlString = $xml->asXML();
 
-    try {
-        $archivo_canales = fopen($this->xml_ruta, "w");
-        fwrite($archivo_canales, $xmlString);
-        fclose($archivo_canales);
-    } catch (Exception $e) {
-        echo 'Exception: ' . $e;
-    }
-
-    // Devolver una respuesta HTTP con el contenido XML
-    return redirect()->route('admin.canales')->with('success', 'El archivo de canales se ha actualizado exitosamente.');
+    return $xmlString;
 }
 
 
@@ -246,7 +257,9 @@ public function generarXMLByCajaId($caja_id)
 
         $caja = Caja::where('mac', $mac)->first();
 
-        $this->generarXMLByCajaId(6);
+        $xmlString = $this->generarXMLByCajaId(5);
+        return response($xmlString, 200)
+        ->header('Content-Type', 'text/xml');
 
         if (!$caja) {
             return response()->file($this->xml_empty_ruta);

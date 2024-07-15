@@ -33,12 +33,10 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Key</th>
-                    <th>Value</th>
-                    <th>Type</th>
-                    <th>Number</th>
-                    <th>Habilitado</th>
+                <th>Nombre</th>
+                    <th>URL</th>
+                    <th>Categoria</th>
+                    <th>NUMBER</th>
                     <th>Acciones</th>
 
                 </tr>
@@ -46,13 +44,10 @@
             <tbody>
                 @foreach($paquete_canales as $canal)
                     <tr>
-                        <td>{{ $canal->id }}</td>
-                        <td>{{ $canal->key }}</td>
-                        <td>{{ $canal->value }}</td>
-                        <td>{{ $canal->type }}</td>
-                        <td>{{ $canal->number }}</td>
-                        <td>{{ $canal->habilitado ? 'Sí' : 'No' }}</td>
-
+                    <td>{{ $canal["key"] }}</td>
+                    <td>{{ $canal["value"] }}</td>
+                    <td>{{ $canal["type"] }}</td>
+                    <td>{{ $canal["number"] }}</td>
                         <td>
 
                         <form action="{{ route('admin.paquetes.canales.destroy', $canal->id) }}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este canal de este paquete?');" method="POST">

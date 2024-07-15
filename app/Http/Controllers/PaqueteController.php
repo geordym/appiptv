@@ -24,39 +24,81 @@ class PaqueteController extends Controller
 
     public function store(Request $request)
     {
-        $nombre = $request->input('nombre');
+        // Validar los datos de entrada
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+        ]);
 
-        $paquete = new Paquete();
-        $paquete->nombre = $nombre;
-        $paquete->save();
+        try {
+            // Crear un nuevo paquete
+            $paquete = new Paquete();
+            $paquete->nombre = $validated['nombre'];
+            $paquete->save();
 
-        return redirect()->route('admin.paquetes.index')->with('success', 'Paquete creado correctamente.');
+            return redirect()->route('admin.paquetes.index')->with('success', 'Paquete creado correctamente.');
+        } catch (\Exception $e) {
+            // Manejar errores y redirigir con mensaje de error
+            return redirect()->route('admin.paquetes.index')->with('error', 'Ocurrió un error al crear el paquete. Por favor, inténtelo de nuevo.');
+        }
     }
+
 
     public function edit($id)
     {
+        try {
+            // Validar que el ID del paquete sea numérico y mayor que cero
+            if (!is_numeric($id) || $id <= 0) {
+                throw new \InvalidArgumentException('El ID del paquete no es válido.');
+            }
 
-        $canales = Canal::all();
-        $paquete = Paquete::with(['canales'])->where('id', $id)->first();
-        $paquete_canales = $paquete->canales;
+            // Obtener todos los canales
+            $canales = Canal::all();
 
+            // Obtener el paquete con sus canales asociados
+            $paquete = Paquete::with('canales')->findOrFail($id);
+            $paquete_canales = $paquete->canales;
 
-        $canales_filtrados = $canales->diff($paquete_canales);
+            // Filtrar los canales que no están en el paquete
+            $canales_filtrados = $canales->diff($paquete_canales);
 
-        return view('paquetes.edit')->with('canales', $canales_filtrados)->with('paquete', $paquete)
-        ->with('paquete_canales', $paquete_canales)
-        ;
-
+            // Devolver la vista con los datos necesarios
+            return view('paquetes.edit', [
+                'canales' => $canales_filtrados,
+                'paquete' => $paquete,
+                'paquete_canales' => $paquete_canales
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->route('admin.paquetes.index')->with('error', 'El paquete especificado no existe.');
+        } catch (\InvalidArgumentException $e) {
+            return redirect()->route('admin.paquetes.index')->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->route('admin.paquetes.index')->with('error', 'Ocurrió un error al cargar la edición del paquete. Por favor, inténtelo de nuevo.');
+        }
     }
 
-    public function canalAdd($id, Request $request){
-        $canal_id = $request->input('canal');
-        $canal = Canal::find($canal_id);
-        $paquete = Paquete::find($id);
-        $paquete->canales()->attach($canal);
 
-        return redirect()->route('admin.paquetes.edit', $id)->with('success', 'Canal Agregado al paquete correctamente.');
+    public function canalAdd($id, Request $request)
+    {
+        // Validar los datos de entrada
+        $validated = $request->validate([
+            'canal' => 'required|exists:canales,id',
+        ]);
 
+        try {
+            // Obtener el canal y el paquete
+            $canal = Canal::findOrFail($validated['canal']);
+            $paquete = Paquete::findOrFail($id);
+
+            // Vincular el canal al paquete
+            $paquete->canales()->attach($canal->id);
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('admin.paquetes.edit', $id)->with('success', 'Canal agregado al paquete correctamente.');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('error', 'El canal o paquete especificado no existe.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Ocurrió un error al agregar el canal al paquete. Por favor, inténtelo de nuevo.');
+        }
     }
 
     public function canalRemove($id, Request $request)
@@ -70,7 +112,7 @@ class PaqueteController extends Controller
             $paquete = Paquete::findOrFail($paquete_id);
 
             // Eliminar la relación
-            $paquete->canales()->detach($canal);
+            $paquete->canales()->detach($canal->id);
 
             return redirect()->route('admin.paquetes.edit', $paquete_id)->with('success', 'Canal eliminado del paquete correctamente.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -80,40 +122,77 @@ class PaqueteController extends Controller
         }
     }
 
-    public function cajaPaqueteEdit($id){
-        $caja_id = $id;
-        $caja = Caja::with('paquetes')->where('id',$caja_id)->first();
-        $caja_paquetes = $caja->paquetes;
 
-        $paquetes = Paquete::all();
-        $paquetes = $paquetes->diff($caja_paquetes);
+    public function cajaPaqueteEdit($id)
+    {
+        try {
+            // Obtener la caja con sus paquetes asociados
+            $caja = Caja::with('paquetes')->findOrFail($id);
 
-        return view('paquetes.cajas.edit')->with('caja', $caja)->with('caja_paquetes', $caja_paquetes)
-        ->with('paquetes', $paquetes);
-        ;
+            // Obtener los paquetes que no están en la caja
+            $paquetes = Paquete::all()->diff($caja->paquetes);
+
+            // Devolver la vista con los datos necesarios
+            return view('paquetes.cajas.edit', [
+                'caja' => $caja,
+                'caja_paquetes' => $caja->paquetes,
+                'paquetes' => $paquetes
+            ]);
+        } catch (\Exception $e) {
+            // Manejar errores y redirigir con mensaje de error
+            return redirect()->route('admin.paquetes.cajas.index')->with('error', 'Ocurrió un error al cargar la edición de la caja: ' . $e->getMessage());
+        }
     }
 
-    public function cajaPaqueteAttach(Request $request){
-        $caja_id = $request->input('caja');
-        $paquete_id = $request->input('paquete');
 
-        $caja = Caja::find($caja_id);
-        $paquete = Paquete::find($paquete_id);
-        $caja->paquetes()->attach($paquete);
+    public function cajaPaqueteAttach(Request $request)
+    {
+        // Validar los datos de entrada
+        $validated = $request->validate([
+            'caja' => 'required|exists:cajas,id',
+            'paquete' => 'required|exists:paquetes,id',
+        ]);
 
-        return redirect()->route('admin.paquetes.cajas.edit', $caja_id)->with('success', 'Paquete agregado a la caja correctamente.');
+        try {
+            // Obtener la caja y el paquete
+            $caja = Caja::findOrFail($validated['caja']);
+            $paquete = Paquete::findOrFail($validated['paquete']);
 
+            // Vincular el paquete a la caja
+            $caja->paquetes()->attach($paquete->id);
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('admin.paquetes.cajas.edit', $caja->id)->with('success', 'Paquete agregado a la caja correctamente.');
+        } catch (\Exception $e) {
+            // Manejar errores y redirigir con mensaje de error
+            return redirect()->route('admin.paquetes.cajas.edit', $validated['caja'])->with('error', 'Ocurrió un error al agregar el paquete a la caja: ' . $e->getMessage());
+        }
     }
 
-    public function cajaPaqueteDettach(Request $request){
-        $paquete_id = $request->input('paquete');
-        $caja_id = $request->input('caja');
 
-        $paquete = Paquete::find($paquete_id);
-        $caja = Caja::with('paquetes')->where('id',$caja_id)->first();
+    public function cajaPaqueteDettach(Request $request)
+    {
+        // Validar los datos de entrada
+        $validated = $request->validate([
+            'paquete' => 'required|exists:paquetes,id',
+            'caja' => 'required|exists:cajas,id',
+        ]);
 
-        $caja->paquetes()->detach($paquete);
-        return redirect()->route('admin.paquetes.cajas.edit', $caja_id)->with('success', 'Paquete eliminado de la caja');
+        try {
+            // Obtener el paquete y la caja con sus relaciones
+            $paquete = Paquete::findOrFail($validated['paquete']);
+            $caja = Caja::with('paquetes')->findOrFail($validated['caja']);
+
+            // Desvincular el paquete de la caja
+            $caja->paquetes()->detach($paquete->id);
+
+            // Redirigir con mensaje de éxito
+            return redirect()->route('admin.paquetes.cajas.edit', $caja->id)->with('success', 'Paquete eliminado de la caja');
+        } catch (\Exception $e) {
+            // Manejar errores y redirigir con mensaje de error
+            return redirect()->route('admin.paquetes.cajas.edit', $validated['caja'])->with('error', 'Ocurrió un error al eliminar el paquete de la caja: ' . $e->getMessage());
+        }
     }
+
 
 }
