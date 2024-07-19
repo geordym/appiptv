@@ -20,7 +20,22 @@ class CajaController extends Controller
 
      public function registroCajas(){
         $cajas_registro = CajaRegistro::orderBy('created_at', 'DESC')->limit(30)->get();
-        return view('cajas.registro')->with('cajas_registro', $cajas_registro);
+        $cajas_registro_modified = [];
+        foreach($cajas_registro as $caja_registro){
+
+            $mac = $caja_registro->mac;
+            $caja = Caja::where('mac', $mac)->first();
+            if($caja){
+                $caja_registro->isOnSystem = true;
+                $caja_registro->nombre = $caja->nombre;
+                $cajas_registro_modified[] = $caja_registro;
+            } else {
+                $cajas_registro_modified[] = $caja_registro;
+            }
+
+        }
+
+        return view('cajas.registro')->with('cajas_registro', $cajas_registro_modified);
     }
 
     public function index()

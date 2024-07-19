@@ -30,14 +30,23 @@
         </thead>
         <tbody>
             @foreach ($cajas_registro as $caja)
+
             <tr>
                 <td>{{ $caja->mac }}</td>
                 <td>{{ $caja->created_at }}</td>
 
+                @if($caja->isOnSystem)
+                <td>
+                <a href="#" class="badge badge-success">En Sistema</a>
+                <a href="#" class="badge badge-success">{{$caja->nombre}}</a>
+                </td>
 
+                @else
                 <td>
                 <a class="btn btn-warning" href="{{ route('cajas.create', ['mac' => $caja->mac]) }}">Crear</a>
                 </td>
+
+                @endif
 
             </tr>
             @endforeach
