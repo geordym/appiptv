@@ -212,7 +212,7 @@ function filterChannelsByEnabled($channels) {
 public function generarXMLByCajaId($caja_id)
 {
     $caja = Caja::with(['paquetes', 'paquetes.canales'])->where('id', $caja_id)->first();
-    $paquetes = $caja->paquetes;
+        $paquetes = $caja->paquetes;
 
     $caja_canales = [];
     foreach($paquetes as $paquete){
@@ -226,8 +226,10 @@ public function generarXMLByCajaId($caja_id)
     $caja_canales = $this->removeDuplicateChannels($caja_canales);
     $caja_canales = $this->filterChannelsByEnabled($caja_canales);
 
-   // dd($caja_canales);
-    // Crear un nuevo objeto SimpleXMLElement con una raíz llamada "list"
+    usort($caja_canales, function($a, $b) {
+        return $a->number <=> $b->number;
+    });
+
     $xml = new \SimpleXMLElement('<?xml version="1.0"?><list></list>');
 
     foreach ($caja_canales as $canal) {
@@ -244,7 +246,10 @@ public function generarXMLByCajaId($caja_id)
     $xmlString = $xml->asXML();
 
     return $xmlString;
+
 }
+
+
 
 
     function retornarXML(Request $request)
