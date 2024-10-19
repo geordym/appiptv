@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\CajaController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,14 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::match(['get', 'head'], '/', function () {
-    // Redirige a la ruta '/home'
-    return redirect('/home');
+Route::get('/', function () {
+    return redirect('/home'); // O redirigir a otra página
 });
-
 Auth::routes();
-
-
 
 
 
@@ -36,9 +32,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/dashboard', [App\Http\Controllers\UserController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/profile', [App\Http\Controllers\UserController::class, 'profile'])->name('admin.profile');
-    Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'users'])->name('admin.users');
-    Route::post('/admin/users', [App\Http\Controllers\UserController::class, 'create'])->name('admin.users.create');
-
 
     /*CANALES ROUTES */
     Route::get('/admin/canales/xml', [App\Http\Controllers\CanalController::class, 'generarXML'])->name('admin.canales.xml');
@@ -68,6 +61,17 @@ Route::middleware('auth')->group(function () {
     /*CHANGE PASSWORD ROUTES */
     Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'changePassword']);
+
+
+});
+
+Route::middleware(['auth', 'administrator'])->group(function () {
+
+
+
+Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'users'])->name('admin.users');
+Route::post('/admin/users', [App\Http\Controllers\UserController::class, 'create'])->name('admin.users.create');
+Route::delete('/admin/users', [App\Http\Controllers\UserController::class, 'destroy'])->name('admin.users.destroy');
 
 
 });

@@ -11,6 +11,25 @@
 
 <div class="container">
 
+<!-- Mostrar mensaje de éxito -->
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+<!-- Mostrar errores de validación -->
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+
     <div class="row">
         <h1>Usuarios</h1>
 
@@ -21,28 +40,39 @@
         </button>
     </div>
     <div class="row bg-white mt-3">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Fecha de Creación</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($users as $user)
-                <tr>
-                    <td>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->role->name }}</td> <!-- Asumiendo que tienes una relación BelongsTo con el rol -->
-                    <td>{{ $user->created_at }}</td> <!-- Asumiendo que tienes una columna "created_at" en tu tabla de usuarios -->
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Fecha de Creación</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($users as $user)
+        <tr>
+            <td>{{ $user->id }}</td>
+            <td>{{ $user->name }}</td>
+            <td>{{ $user->email }}</td>
+            <td>{{ $user->role }}</td>
+            <td>{{ $user->created_at }}</td>
+            <td>
+                <!-- Botón de Eliminar -->
+                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                    @csrf
+                    @method('DELETE')
+                    <input name="user_id" value="{{$user->id}}" type="hidden">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+
     </div>
 </div>
 
@@ -72,12 +102,9 @@
                     </div>
                     <div class="form-group">
                         <label for="rol">Rol:</label>
-                        <select class="form-control" id="rol" name="rol" required>
-                            <option value="1">VENDEDOR</option>
-                            <option value="2">SUPERADMINISTRADOR</option>
-                            <option value="3">ADMINISTRADOR</option>
-
-                            <!-- Agrega opciones para otros roles -->
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="ADMINISTRATOR">ADMINISTRADOR</option>
+                            <option value="USUARIO_CAJA">USUARIO CAJA</option>
                         </select>
                     </div>
                     <div class="modal-footer">
