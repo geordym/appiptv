@@ -31,15 +31,30 @@ class EventServiceProvider extends ServiceProvider
     {
 
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
-            if (Auth::check() && Auth::user()->role === 'ADMINISTRATOR') {
+            if (Auth::check() && Auth::user()->role === 'SUPER_ADMINISTRATOR') {
 
                 $event->menu->add([
                     'text' => 'Usuarios',
                     'url'  => '/admin/users',
                 ]);
             }
-        });
 
+
+    if (Auth::check() && (Auth::user()->role === 'SUPER_ADMINISTRATOR' || Auth::user()->role === 'ADMINISTRATOR')) {
+        $event->menu->add(
+            [
+                'text' => 'Canales IPTV',
+                'url'  => '/admin/canales',
+            ],
+            [
+                'text' => 'Paquetes',
+                'url'  => '/admin/paquetes',
+            ]
+        );
+    }
+
+
+        });
 
     }
 }

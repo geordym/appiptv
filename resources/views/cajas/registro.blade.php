@@ -9,14 +9,7 @@
 @section('content')
 
 
-
-
-
 <div class="container mt-1">
-
-
-
-
     <h2>Lista de Cajas</h2>
 
     <table class="table table-striped">
@@ -52,4 +45,6 @@
             @endforeach
         </tbody>
     </table>
-</div>@stop
+</div>
+
+@stop

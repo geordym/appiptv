@@ -69,6 +69,10 @@ class UserController extends Controller
             $id = $request->input('user_id');
             $user = User::findOrFail($id);
 
+            if($user->role === "SUPER_ADMINISTRATOR"){
+                return redirect('/admin/users')->with('error', 'No se puede eliminar este super administrador.');
+            }
+
             if ($user->role === 'ADMINISTRATOR') {
                 $adminCount = User::where('role', 'ADMINISTRATOR')->count();
 

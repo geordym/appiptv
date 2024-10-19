@@ -88,8 +88,10 @@ class PaqueteController extends Controller
             $canales = Canal::all();
 
             // Obtener el paquete con sus canales asociados
-            $paquete = Paquete::with('canales')->findOrFail($id);
-            $paquete_canales = $paquete->canales;
+            $paquete = Paquete::with(['canales' => function ($query) {
+                $query->orderBy('number', 'ASC');
+            }])->findOrFail($id);
+                        $paquete_canales = $paquete->canales;
 
             // Filtrar los canales que no están en el paquete
             $canales_filtrados = $canales->diff($paquete_canales);

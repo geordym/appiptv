@@ -35,22 +35,34 @@ class CajaController extends Controller
 
         }
 
+
         return view('cajas.registro')->with('cajas_registro', $cajas_registro_modified);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // Obtén el parámetro 'name' de la solicitud
+        $name = $request->input('name');
 
+        // Conteos de cajas activadas y desactivadas
         $conteo_cajas_desactivadas = Caja::where('estado', 'desactivado')->count();
         $conteo_cajas_activadas = Caja::where('estado', 'activado')->count();
 
+        // Si hay un nombre en la solicitud, buscar cajas con un LIKE
+        if ($name) {
+            $cajas = Caja::where('nombre', 'LIKE', '%' . $name . '%')->get();
+        } else {
+            // Si no hay nombre, traer todas las cajas
+            $cajas = Caja::all();
+        }
 
-        $cajas = Caja::all();
-        return view('cajas.index')->with('cajas', $cajas)
-        ->with('cajas_activadas', $conteo_cajas_activadas)
-        ->with('cajas_desactivadas', $conteo_cajas_desactivadas);
+        // Retornar la vista con los datos
+        return view('cajas.index')
+            ->with('cajas', $cajas)
+            ->with('cajas_activadas', $conteo_cajas_activadas)
+            ->with('cajas_desactivadas', $conteo_cajas_desactivadas);
     }
+
 
     /**
      * Show the form for creating a new resource.

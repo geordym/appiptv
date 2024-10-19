@@ -33,16 +33,39 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\UserController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/profile', [App\Http\Controllers\UserController::class, 'profile'])->name('admin.profile');
 
-    /*CANALES ROUTES */
-    Route::get('/admin/canales/xml', [App\Http\Controllers\CanalController::class, 'generarXML'])->name('admin.canales.xml');
-    Route::delete('/admin/canales/delete/{id}', [App\Http\Controllers\CanalController::class, 'destroy'])->name('admin.canales.delete');
-    Route::get('/admin/canales', [App\Http\Controllers\CanalController::class, 'index'])->name('admin.canales');
-    Route::post('/admin/canales', [App\Http\Controllers\CanalController::class, 'create'])->name('admin.canales.create');
-    Route::get('/admin/canales/edit/{id}', [App\Http\Controllers\CanalController::class, 'edit'])->name('admin.canales.edit');
-    Route::put('/admin/canales/{id}', [App\Http\Controllers\CanalController::class, 'update'])->name('admin.canales.update');
 
-    Route::get('/admin/cajas/log', [App\Http\Controllers\CajaController::class, 'registroCajas'])->name('cajas.log');
+    /*CHANGE PASSWORD ROUTES */
+    Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'changePassword']);
+
+
+});
+
+
+
+Route::get('/admin/cajas/log', [App\Http\Controllers\CajaController::class, 'registroCajas'])->name('cajas.log');
+
+Route::middleware(['auth', 'superadmin_or_admin_or_usercaja'])->group(function () {
     Route::resource('/admin/cajas', CajaController::class);
+
+    Route::get('/admin/paquetes/cajas/{id}', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteEdit'])->name('admin.paquetes.cajas.edit');
+    Route::post('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteAttach'])->name('admin.paquetes.cajas.attach');
+    Route::delete('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteDettach'])->name('admin.paquetes.cajas.dettach');
+
+
+});
+
+Route::middleware(['auth', 'superadmin_or_admin'])->group(function () {
+
+
+  /*CANALES ROUTES */
+  Route::get('/admin/canales/xml', [App\Http\Controllers\CanalController::class, 'generarXML'])->name('admin.canales.xml');
+  Route::delete('/admin/canales/delete/{id}', [App\Http\Controllers\CanalController::class, 'destroy'])->name('admin.canales.delete');
+  Route::get('/admin/canales', [App\Http\Controllers\CanalController::class, 'index'])->name('admin.canales');
+  Route::post('/admin/canales', [App\Http\Controllers\CanalController::class, 'create'])->name('admin.canales.create');
+  Route::get('/admin/canales/edit/{id}', [App\Http\Controllers\CanalController::class, 'edit'])->name('admin.canales.edit');
+  Route::put('/admin/canales/{id}', [App\Http\Controllers\CanalController::class, 'update'])->name('admin.canales.update');
+
 
     /*PAQUETES ROUTES */
     Route::get('/admin/paquetes', [App\Http\Controllers\PaqueteController::class, 'index'])->name('admin.paquetes.index');
@@ -53,19 +76,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/paquetes/{id}', [App\Http\Controllers\PaqueteController::class, 'update'])->name('admin.paquetes.update');
     Route::post('/admin/paquetes/canales/add/{id}', [App\Http\Controllers\PaqueteController::class, 'canalAdd'])->name('admin.paquetes.canalAdd');
     Route::delete('/admin/paquetes/canales/destroy/{id}', [App\Http\Controllers\PaqueteController::class, 'canalRemove'])->name('admin.paquetes.canales.destroy');
-    Route::get('/admin/paquetes/cajas/{id}', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteEdit'])->name('admin.paquetes.cajas.edit');
-    Route::post('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteAttach'])->name('admin.paquetes.cajas.attach');
-    Route::delete('/admin/paquetes/cajas', [App\Http\Controllers\PaqueteController::class, 'cajaPaqueteDettach'])->name('admin.paquetes.cajas.dettach');
 
 
-    /*CHANGE PASSWORD ROUTES */
-    Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
-    Route::post('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'changePassword']);
 
 
 });
 
-Route::middleware(['auth', 'administrator'])->group(function () {
+
+Route::middleware(['auth', 'super_administrator'])->group(function () {
 
 
 

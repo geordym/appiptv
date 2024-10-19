@@ -53,6 +53,17 @@
 
     <a class="btn btn-primary mb-2" href="{{ route('cajas.create') }}">Crear Caja</a>
     <a class="btn btn-secondary mb-2" href="{{ route('cajas.log') }}">Ver registro de conexiones</a>
+    <br>
+
+    <form id="formName">
+    <!-- Campo para la fecha -->
+    <div class="form-group">
+        <label for="name">Buscar por nombre:</label>
+        <input type="text" class="form-control" id="name" name="name" style="width: 200px;">
+        <button class="btn btn-primary" id="caja_boton">Buscar</button>
+    </div>
+</form>
+
 
     <table class="table table-striped">
         <thead>
@@ -95,4 +106,22 @@
             @endforeach
         </tbody>
     </table>
-</div>@stop
+</div>
+
+
+
+<script>
+    document.getElementById('caja_boton').addEventListener('submit', function(event) {
+        // Prevenir el comportamiento predeterminado del formulario
+        event.preventDefault();
+
+        var name = document.getElementById('name').value;
+
+        var url = "{{ route('cajas.index') }}" + "?name=" + name;
+
+        // Redireccionar a la URL construida
+        window.location.href = url;
+    });
+</script>
+
+@stop
