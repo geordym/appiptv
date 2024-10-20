@@ -91,12 +91,8 @@ class CanalController extends Controller
             $canales_instalados = [];
         }
 
-        $canales = Canal::all()->toArray();
 
-        usort($canales_instalados, function ($a, $b) {
-            return $a['number'] <=> $b['number'];
-        });
-
+        $canales = Canal::orderBy('number')->get()->toArray();
         return view('canales.index')->with('canales', $canales)->with('canales_instalados', $canales_instalados);
     }
 
