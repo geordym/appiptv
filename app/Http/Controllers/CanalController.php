@@ -90,9 +90,7 @@ class CanalController extends Controller
         if ($canales_instalados === null) {
             $canales_instalados = [];
         }
-
-
-        $canales = Canal::orderBy('number')->get()->toArray();
+        $canales = Canal::all();
         return view('canales.index')->with('canales', $canales)->with('canales_instalados', $canales_instalados);
     }
 
