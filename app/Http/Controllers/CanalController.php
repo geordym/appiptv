@@ -140,18 +140,27 @@ class CanalController extends Controller
 
     public function destroy($id)
     {
-        // Encuentra el canal a eliminar por su ID
-        $canal = Canal::find($id);
+        try {
+            $canal = Canal::find($id);
 
-        if ($canal) {
-            // Elimina el canal de la base de datos
+            if (!$canal) {
+                return [
+                    'errors' => 'El canal no existe.'
+                ];
+            }
+
+            if ($canal->paquetes()->count() > 0) {
+                return  'No se puede eliminar el canal porque está afiliado a uno o más paquetes. Desafílielo primero.';
+            }
+
             $canal->delete();
-            // Redirige o muestra un mensaje de éxito
-            return 'Eliminado Exitosamente';
-        } else {
-            // Maneja el caso en el que el canal no se encuentra
-            // Redirige o muestra un mensaje de error
-            return 'Fallo la eliminacion';
+
+            return 'El canal ha sido eliminado exitosamente.';
+
+        } catch (\Exception $e) {
+            return [
+                'errors' => 'Ocurrió un error al intentar eliminar el canal: ' . $e->getMessage()
+            ];
         }
     }
 
