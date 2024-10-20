@@ -306,11 +306,6 @@ return [
         ['header' => 'Modulos'],
 
 
-        [
-            'text' => 'Cajas',
-            'url'  => '/admin/cajas',
-        ],
-
 
 
 
