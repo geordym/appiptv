@@ -41,12 +41,32 @@ class EventServiceProvider extends ServiceProvider
                         'text' => 'Canales IPTV',
                         'url'  => '/admin/canales',
                     ],
+
+                );
+            }
+
+
+            $event->menu->add(  [
+                'text' => 'Cajas',
+                'url'  => '/admin/cajas',
+            ]);
+
+            if (Auth::check() && (Auth::user()->role === 'SUPER_ADMINISTRATOR' || Auth::user()->role === 'ADMINISTRATOR')) {
+                $event->menu->add(
                     [
                         'text' => 'Paquetes',
                         'url'  => '/admin/paquetes',
                     ]
                 );
             }
+
+
+
+
+            $event->menu->add([
+                'text' => 'Acceso',
+                'url'  => '/change-password',
+            ]);
 
 
             if (Auth::check() && Auth::user()->role === 'SUPER_ADMINISTRATOR') {
@@ -56,11 +76,6 @@ class EventServiceProvider extends ServiceProvider
                     'url'  => '/admin/users',
                 ]);
             }
-
-            $event->menu->add([
-                'text' => 'Acceso',
-                'url'  => '/change-password',
-            ]);
 
         });
 
