@@ -93,7 +93,7 @@ class CanalController extends Controller
 
         $canales = Canal::all()->toArray();
 
-        usort($canales, function ($a, $b) {
+        usort($canales_instalados, function ($a, $b) {
             return $a['number'] <=> $b['number'];
         });
 
