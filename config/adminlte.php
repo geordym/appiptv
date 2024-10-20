@@ -311,10 +311,6 @@ return [
             'url'  => '/admin/cajas',
         ],
 
-        [
-            'text' => 'Acceso',
-            'url'  => '/change-password',
-        ],
 
 
 

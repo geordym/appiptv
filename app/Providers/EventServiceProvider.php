@@ -57,7 +57,10 @@ class EventServiceProvider extends ServiceProvider
                 ]);
             }
 
-
+            $event->menu->add([
+                'text' => 'Acceso',
+                'url'  => '/change-password',
+            ]);
 
         });
 
