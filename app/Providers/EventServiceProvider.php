@@ -30,7 +30,25 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
 
+
+
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
+
+
+            if (Auth::check() && (Auth::user()->role === 'SUPER_ADMINISTRATOR' || Auth::user()->role === 'ADMINISTRATOR')) {
+                $event->menu->add(
+                    [
+                        'text' => 'Canales IPTV',
+                        'url'  => '/admin/canales',
+                    ],
+                    [
+                        'text' => 'Paquetes',
+                        'url'  => '/admin/paquetes',
+                    ]
+                );
+            }
+
+
             if (Auth::check() && Auth::user()->role === 'SUPER_ADMINISTRATOR') {
 
                 $event->menu->add([
@@ -39,19 +57,6 @@ class EventServiceProvider extends ServiceProvider
                 ]);
             }
 
-
-    if (Auth::check() && (Auth::user()->role === 'SUPER_ADMINISTRATOR' || Auth::user()->role === 'ADMINISTRATOR')) {
-        $event->menu->add(
-            [
-                'text' => 'Canales IPTV',
-                'url'  => '/admin/canales',
-            ],
-            [
-                'text' => 'Paquetes',
-                'url'  => '/admin/paquetes',
-            ]
-        );
-    }
 
 
         });
