@@ -91,8 +91,8 @@ class CanalController extends Controller
             $canales_instalados = [];
         }
 
-          $canales = Canal::orderBy('number')->get()->toArray();
-         return view('canales.index')->with('canales', $canales)->with('canales_instalados', $canales_instalados);
+        $canales = Canal::orderBy('number')->get();
+                return view('canales.index')->with('canales', $canales)->with('canales_instalados', $canales_instalados);
     }
 
     public function edit($id)
